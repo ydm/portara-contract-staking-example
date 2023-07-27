@@ -31,6 +31,8 @@ contract Client is Context {
         publicToken = IPublicToken(_publicToken);
         escrow = IPoolEscrow(_escrow);
 
+        // The PoolEscrow contract should be able to take out the
+        // desired Staked ETH amount on withdrawal requests.
         stakedEthToken.approve(_escrow, type(uint256).max);
     }
 
@@ -68,7 +70,5 @@ contract Client is Context {
             payable(_msgSender()).sendValue(difference);
         }
     }
-
-    
 
 }
