@@ -64,7 +64,7 @@ contract Client is Context {
         // The rest of the total amount is deferred.
         uint256 deferred = amount - immediate;
         if (deferred > 0) {
-            payments[_msgSender()] = deferred;
+            payments[_msgSender()] += deferred;
         }
 
         // Finally, send the immediate payment to the user.
@@ -81,14 +81,16 @@ contract Client is Context {
         uint256 after_ = address(this).balance;
         uint256 deferred = after_ - before;
 
-        // Once we have the deferred payment as an exact amount, make
-        // sure the user is eligible for this withdrawal.  Otherwise a
-        // user would be able to withdraw other users' tickets.
-        address sender = _msgSender();
-        require(payments[sender] == deferred);
-
-        // Send the deferred payment to user.
         if (deferred > 0) {
+            // Once we have the deferred payment as an exact amount,
+            // make sure the user is eligible for this withdrawal.
+            // Otherwise a user would be able to withdraw other users'
+            // tickets.
+            address sender = _msgSender();
+            require(payments[sender] > deferred);
+            payments[sender] -= deferred;
+
+            // Send the deferred payment to the user.
             payable(_msgSender()).sendValue(deferred);
             delete payments[sender];
         }
